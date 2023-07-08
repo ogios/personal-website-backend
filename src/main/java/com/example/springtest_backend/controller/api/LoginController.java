@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RequestMapping("/api/sign")
 @RestController
 public class LoginController {
@@ -50,29 +52,39 @@ public class LoginController {
 
     // 重置密码
     @PutMapping("/resetPassword")
-    public SignResponse resetPassword(@RequestBody String username, @RequestBody String oldPassword, @RequestBody String newPassword, HttpServletRequest request){
+    public SignResponse resetPassword(@RequestBody Map<String,String> json){
+        String username = json.get("username");
+        String oldPassword = json.get("oldPassword");
+        String newPassword = json.get("newPassword");
+        if (username == null || oldPassword == null || newPassword == null || username.equals("") || oldPassword.equals("") || newPassword.equals("")){
+            return SignResponse.fatal(400, "Please provide username, oldPassword and newPassword");
+        }
         User newUser = new User();
         newUser.setUsername(username);
         User oldUser = userMapper.getUserByUsername(username);
         if ( oldUser == null ){ return SignResponse.fatal(404, "User not exist");}
         if (oldPassword.equals(oldUser.getPassword())){
+            newUser.setId(oldUser.getId());
             newUser.setPassword(newPassword);
-        }
-        System.out.println("newUser = " + newUser);
-
-        if (userMapper.updateUsernameById(newUser) > 0){
-            return SignResponse.ok("");
+            System.out.println("newUser = " + newUser);
+            if (userMapper.updateUsernameById(newUser) > 0){
+                return SignResponse.ok("");
+            } else {
+                return SignResponse.error("Something went wrong");
+            }
         } else {
-            return SignResponse.error("Something went wrong");
+            return SignResponse.fatal(400, "Wrong oldPassword");
         }
     }
 
     // 重置用户名
     @PutMapping("/token/resetUsername")
-    public SignResponse resetUsername(@RequestBody String username, HttpServletRequest request) throws JsonProcessingException {
+    public SignResponse resetUsername(@RequestBody Map<String, String> json, HttpServletRequest request) throws JsonProcessingException {
         Claims claims = Auth.getClaimFromRequest(request);
         if (claims == null){ return WRONG_TOKEN; }
         TokenSubject sub = Auth.getSubFromClaim(claims);
+        String username = json.get("username");
+        if (username == null || username.equals("")){ return SignResponse.fatal(400, "Username not provided"); }
         if (userMapper.getCountsByUsername(username) > 0){ return SignResponse.fatal(400, "Username existed"); }
         User newUser = userMapper.getUserById(sub.getId());
         newUser.setUsername(username);
