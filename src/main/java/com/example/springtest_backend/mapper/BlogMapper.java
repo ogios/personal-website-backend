@@ -1,9 +1,11 @@
 package com.example.springtest_backend.mapper;
 
 import com.example.springtest_backend.entity.Blog;
+import com.example.springtest_backend.entity.Category;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BlogMapper {
@@ -48,5 +50,19 @@ public interface BlogMapper {
             "WHERE id=#{id}")
     int updateBlogById(Blog blog);
 
+    @Select("SELECT * FROM t_category")
+    List<Category> getCategories();
+
+    @Select(" <script> " +
+            "SELECT * FROM `t_blog` AS b " +
+            "<if test='#{conditions.tab} != null'> INNER JOIN `t_tab` AS t ON b.id=t.blog_id " +
+            "WHERE 1=1 " +
+            "<if test='#{conditions.category} != null'> AND b.category_id=#{conditions.category} </if> " +
+            "<if test='#{conditions.tab} != null'> AND t.name=#{conditions.tab} </if> " +
+            " </script> ")
+    List<Category> getBlogsByConditions(@Param("condition")Map<String, Object> conditions);
+
+    @Select("SELECT DISTINCT name FROM t_tab")
+    List<String> getTabs();
 
 }

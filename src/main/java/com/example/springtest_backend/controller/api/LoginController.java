@@ -1,6 +1,5 @@
 package com.example.springtest_backend.controller.api;
 
-import com.alibaba.druid.support.json.JSONUtils;
 import com.example.springtest_backend.entity.TokenSubject;
 import com.example.springtest_backend.entity.User;
 import com.example.springtest_backend.mapper.UserMapper;
@@ -95,13 +94,14 @@ public class LoginController {
     // 检测token
     @GetMapping("/token/checkToken")
     public SignResponse checkToken(HttpServletRequest request){
-        String token = request.getHeader("token");
-        Claims claims = Auth.tokenParse(token);
-        String sub = claims.getSubject();
-        System.out.println("sub = " + sub);
-        Object subO = JSONUtils.parse(sub);
-        System.out.println("subO = " + subO);
-        return SignResponse.ok(token);
+//        String token = request.getHeader("token");
+//        Claims claims = Auth.tokenParse(token);
+//        String sub = claims.getSubject();
+//        System.out.println("sub = " + sub);
+//        Object subO = JSONUtils.parse(sub);
+//        System.out.println("subO = " + subO);
+//        return SignResponse.ok(token);
+        return SignResponse.ok("");
     }
 
 

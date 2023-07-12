@@ -16,7 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.springtest_backend.utils.FileUtil.isImage;
 
@@ -41,8 +43,8 @@ public class BlogController {
                 .addData("total", total);
     }
 
-    @GetMapping("/blog")
-    public BlogResponse getBlogById(@RequestParam int id, HttpServletRequest request) throws IOException {
+    @GetMapping("/blog/{id}")
+    public BlogResponse getBlogById(@PathVariable("id") int id, HttpServletRequest request) throws IOException {
         Blog blog = blogMapper.getBlogById(id);
         if (blog != null){
             try{
@@ -58,6 +60,17 @@ public class BlogController {
         } else {
             return BlogResponse.fatal(404, "Blog not exist");
         }
+    }
+
+    @GetMapping("/blog")
+    public BlogResponse getBlogByConditions(@RequestParam(required = false) int category, @RequestParam(required = false) String tab){
+        if (category == 0 && (tab == null || tab.equals(""))){
+            return BlogResponse.fatal(400, "No condition provide");
+        }
+        Map<String, Object> map = new HashMap<>();
+        if (category != 0){ map.put("category", category); }
+        if (tab != null && !tab.equals("")){ map.put("tab", tab); }
+        return BlogResponse.ok().addData("blogs", blogMapper.getBlogsByConditions(map));
     }
 
     @PostMapping("/token/imageUpload")
@@ -103,9 +116,7 @@ public class BlogController {
         blog.setContent(name);
         blog.setOwnerId(sub.getId());
         blog.setUpdateUserId(blog.getOwnerId());
-        if (blog.getCreateTime() == null || blog.getCreateTime().equals("")){
-            blog.setCreateTime(new Date().toString());
-        }
+        blog.setCreateTime(new Date().toString());
         blog.setUpdateTime(blog.getCreateTime());
         System.out.println("blog.toString() = " + blog);
         if (blogMapper.insertOneBlog(blog) > 0){
@@ -118,7 +129,7 @@ public class BlogController {
         }
     }
 
-    @PostMapping("/token/blogUpdate")
+    @PutMapping("/token/blogUpload")
     public BlogResponse blogUpdate(@RequestBody Blog blog, HttpServletRequest request) throws IOException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
@@ -151,6 +162,10 @@ public class BlogController {
         }
     }
 
+    @GetMapping("/categories")
+    public BlogResponse getCategories(){
+        return BlogResponse.ok().addData("categories", blogMapper.getCategories());
+    }
 
 
 
