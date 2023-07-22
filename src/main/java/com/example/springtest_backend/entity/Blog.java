@@ -1,12 +1,15 @@
 package com.example.springtest_backend.entity;
 
+import java.util.List;
+
 public class Blog {
 
+
+    // 数据库字段
     private int id;
     private String title;
     private String headImg;
     private String content;
-    private String contentRaw;
     private String summary;
     private int isFinished;
     private int isTop;
@@ -15,6 +18,19 @@ public class Blog {
     private int ownerId;
     private int updateUserId;
     private int categoryId;
+
+
+    // 为JSON保留字段
+    private String contentRaw;
+    private List<String> tabs;
+
+    public List<String> getTabs() {
+        return tabs;
+    }
+
+    public void setTabs(List<String> tabs) {
+        this.tabs = tabs;
+    }
 
     public int getId() {
         return id;
@@ -127,7 +143,6 @@ public class Blog {
                 ", title='" + title + '\'' +
                 ", headImg='" + headImg + '\'' +
                 ", content='" + content + '\'' +
-                ", contentRaw='" + contentRaw + '\'' +
                 ", summary='" + summary + '\'' +
                 ", isFinished=" + isFinished +
                 ", isTop=" + isTop +
@@ -136,6 +151,8 @@ public class Blog {
                 ", ownerId=" + ownerId +
                 ", updateUserId=" + updateUserId +
                 ", categoryId=" + categoryId +
+                ", contentRaw='" + contentRaw + '\'' +
+                ", tabs=" + tabs +
                 '}';
     }
 }

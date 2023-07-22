@@ -4,7 +4,7 @@ package com.example.springtest_backend.controller.api;
 import com.example.springtest_backend.entity.Blog;
 import com.example.springtest_backend.entity.TokenSubject;
 import com.example.springtest_backend.mapper.BlogMapper;
-import com.example.springtest_backend.response.BlogResponse;
+import com.example.springtest_backend.response.base.BaseResponse;
 import com.example.springtest_backend.utils.Auth;
 import com.example.springtest_backend.utils.FileUtil;
 import io.jsonwebtoken.Claims;
@@ -26,25 +26,25 @@ import static com.example.springtest_backend.utils.FileUtil.isImage;
 @RestController
 public class BlogController {
 
-    BlogResponse WRONG_TOKEN = BlogResponse.fatal(401, "Wrong token");
+    BaseResponse WRONG_TOKEN = BaseResponse.fatal("Wrong token");
 
     @Autowired
     BlogMapper blogMapper;
 
     @GetMapping("/")
-    public BlogResponse getBlogsSlice(@RequestParam int size, @RequestParam int index){
+    public BaseResponse getBlogsSlice(@RequestParam int size, @RequestParam int index){
         System.out.println("size = " + size);
         System.out.println("index = " + index);
         List<Blog> blogs = blogMapper.getBlogByPage(size * index, size);
         int total = blogMapper.getCounts();
         System.out.println("blogs = " + blogs);
-        return BlogResponse.ok()
-                .addData("blogs", blogs)
-                .addData("total", total);
+        return BaseResponse.ok()
+                .addResult("blogs", blogs)
+                .addResult("total", total);
     }
 
     @GetMapping("/blog/{id}")
-    public BlogResponse getBlogById(@PathVariable("id") int id, HttpServletRequest request) throws IOException {
+    public BaseResponse getBlogById(@PathVariable("id") int id, HttpServletRequest request) throws IOException {
         Blog blog = blogMapper.getBlogById(id);
         if (blog != null){
             try{
@@ -52,51 +52,51 @@ public class BlogController {
                         request.getServletContext().getRealPath("/"),
                         blog.getContent()
                 ));
-                return BlogResponse.ok()
-                        .addData("info", blog);
+                return BaseResponse.ok()
+                        .addResult("info", blog);
             } catch (FileNotFoundException e){
-                return BlogResponse.fatal(404, "Content not found");
+                return BaseResponse.fatal("Content not found");
             }
         } else {
-            return BlogResponse.fatal(404, "Blog not exist");
+            return BaseResponse.fatal("Blog not exist");
         }
     }
 
     @GetMapping("/blog")
-    public BlogResponse getBlogByConditions(@RequestParam(required = false) int category, @RequestParam(required = false) String tab){
+    public BaseResponse getBlogByConditions(@RequestParam(required = false) int category, @RequestParam(required = false) String tab){
         if (category == 0 && (tab == null || tab.equals(""))){
-            return BlogResponse.fatal(400, "No condition provide");
+            return BaseResponse.fatal("No condition provide");
         }
         Map<String, Object> map = new HashMap<>();
         if (category != 0){ map.put("category", category); }
         if (tab != null && !tab.equals("")){ map.put("tab", tab); }
-        return BlogResponse.ok().addData("blogs", blogMapper.getBlogsByConditions(map));
+        return BaseResponse.ok().addResult("blogs", blogMapper.getBlogsByConditions(map));
     }
 
     @PostMapping("/token/imageUpload")
-    public BlogResponse imageUpload(MultipartFile file, HttpServletRequest request) throws IOException {
+    public BaseResponse imageUpload(MultipartFile file, HttpServletRequest request) throws IOException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
         if (claims == null){ return WRONG_TOKEN; }
         TokenSubject sub = Auth.getSubFromClaim(claims);
 
         // 文件检测
-        if (file == null) {return BlogResponse.fatal(400, "No file provided"); }
+        if (file == null) {return BaseResponse.fatal("No file provided"); }
         boolean is_img = isImage(file);
         System.out.println("is_img = " + is_img);
-        if (!is_img){ return BlogResponse.fatal(400, "Only support image file"); }
+        if (!is_img){ return BaseResponse.fatal("Only support image file"); }
 
         // 获取路径并保存 | 保存后返回文件名并以虚拟路径发送
         String path = FileUtil.getImageFilePath(sub.getId(), request.getServletContext().getRealPath("/"), file.getOriginalFilename());
         System.out.println("path = " + path);
         String name = FileUtil.saveFile(file, path);
-        BlogResponse blogResponse = BlogResponse.ok();
-        blogResponse.addData("name", name);
-        return blogResponse;
+//        BaseResponse blogResponse = BaseResponse.ok();
+//        blogResponse.addResult("name", name);
+        return BaseResponse.ok().addResult("name", name);
     }
 
     @PostMapping("/token/blogUpload")
-    public BlogResponse blogUpload(@RequestBody Blog blog, HttpServletRequest request) throws IOException {
+    public BaseResponse blogUpload(@RequestBody Blog blog, HttpServletRequest request) throws IOException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
         if (claims ==null){ return WRONG_TOKEN; }
@@ -105,7 +105,7 @@ public class BlogController {
 
         // 检测内容
         if (blog.getContentRaw() == null || blog.getContentRaw().equals("")){
-            return BlogResponse.fatal(400, "No content provided.");
+            return BaseResponse.fatal("No content provided.");
         }
 
         // 保存文件
@@ -123,14 +123,14 @@ public class BlogController {
             if (blogMapper.getUserToBlogCountByIds(blog.getId(), blog.getOwnerId()).size() == 0){
                 blogMapper.addUserToBlog(blog.getId(), blog.getOwnerId());
             }
-            return BlogResponse.ok().addData("id", blog.getId());
+            return BaseResponse.ok().addResult("id", blog.getId());
         } else {
-            return BlogResponse.error(400, "Something went wrong.");
+            return BaseResponse.error("Something went wrong.");
         }
     }
 
     @PutMapping("/token/blogUpload")
-    public BlogResponse blogUpdate(@RequestBody Blog blog, HttpServletRequest request) throws IOException {
+    public BaseResponse blogUpdate(@RequestBody Blog blog, HttpServletRequest request) throws IOException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
         if (claims ==null){ return WRONG_TOKEN; }
@@ -139,10 +139,10 @@ public class BlogController {
 
         // 检测内容与权限
         if (blog.getContentRaw() == null || blog.getContentRaw().equals("")){
-            return BlogResponse.fatal(400, "No content provided.");
+            return BaseResponse.fatal("No content provided.");
         }
         if (blogMapper.getUserToBlogCountByIds(blog.getId(), id).size() == 0){
-            return BlogResponse.fatal(401, "No authorization's granted.");
+            return BaseResponse.fatal("No authorization's granted.");
         }
 
         // 保存文件
@@ -156,15 +156,15 @@ public class BlogController {
             blog.setUpdateTime(new Date().toString());
         }
         if (blogMapper.updateBlogById(blog) > 0){
-            return BlogResponse.ok().addData("id", blog.getId());
+            return BaseResponse.ok().addResult("id", blog.getId());
         } else {
-            return BlogResponse.error(400, "Something went wrong.");
+            return BaseResponse.error("Something went wrong.");
         }
     }
 
     @GetMapping("/categories")
-    public BlogResponse getCategories(){
-        return BlogResponse.ok().addData("categories", blogMapper.getCategories());
+    public BaseResponse getCategories(){
+        return BaseResponse.ok().addResult("categories", blogMapper.getCategories());
     }
 
 

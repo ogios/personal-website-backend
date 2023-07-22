@@ -55,10 +55,10 @@ public interface BlogMapper {
 
     @Select(" <script> " +
             "SELECT * FROM `t_blog` AS b " +
-            "<if test='#{conditions.tab} != null'> INNER JOIN `t_tab` AS t ON b.id=t.blog_id </if> " +
+            "<if test=\"#{conditions.tab} != null\"> INNER JOIN `t_tab` AS t ON b.id=t.blog_id </if> " +
             "WHERE 1=1 " +
-            "<if test='#{conditions.category} != null'> AND b.category_id=#{conditions.category} </if> " +
-            "<if test='#{conditions.tab} != null'> AND t.name=#{conditions.tab} </if> " +
+            "<if test=\"#{conditions.category} != null\"> AND b.category_id=#{conditions.category} </if> " +
+            "<if test=\"#{conditions.tab} != null\"> AND t.name=#{conditions.tab} </if> " +
             " </script> ")
     List<Category> getBlogsByConditions(@Param("condition")Map<String, Object> conditions);
 
