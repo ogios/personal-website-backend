@@ -11,8 +11,13 @@ import java.util.Map;
 public interface BlogMapper {
 
     // select
-    // 分页获取所有信息
-    @Select("SELECT * FROM t_blog LIMIT #{offset},#{size}")
+    // 分页获取所有信息(包括tabs)
+//    @Select("SELECT * FROM t_blog LIMIT #{offset},#{size}")
+    @Select("SELECT b.*, JSON_ARRAYAGG(t.name) AS tabs " +
+            "FROM t_blog b " +
+            "LEFT JOIN t_tab t ON b.id = t.blog_id " +
+            "GROUP BY b.id " +
+            "LIMIT LIMIT #{offset},#{size}")
     List<Blog> getBlogByPage(int offset, int size);
 
     // 获取文章总数
@@ -20,7 +25,11 @@ public interface BlogMapper {
     int getCounts();
 
     // 根据id获取指定文章
-    @Select("SELECT * FROM t_blog WHERE id=#{id}")
+    @Select("SELECT b.*, JSON_ARRAYAGG(t.name) AS tabs " +
+            "FROM t_blog b " +
+            "LEFT JOIN t_tab t ON b.id = t.blog_id " +
+            "WHERE id=#{id} " +
+            "GROUP BY b.id ")
     Blog getBlogById(int id);
 
     // 根据blogid和userid获取指定记录 (主要用于更改权限查看)

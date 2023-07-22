@@ -16,7 +16,7 @@ import java.util.UUID;
 public class FileUtil {
 
     public static String IMAGE_PATH =  "/raw/images";
-    public static String TEXT_PATH = "raw/text";
+    public static String TEXT_PATH = "/raw/text";
 
     public static Set<String> IMAGE_TYPE = new HashSet<>();
     static {
@@ -29,7 +29,7 @@ public class FileUtil {
         return IMAGE_TYPE.contains(c);
     }
 
-    public static String getImageFilePath(int id, String base, String filename){
+    public static String newImageFilePath(int id, String base, String filename){
         String path = base + IMAGE_PATH;
         String suffix = "";
         try {
@@ -45,13 +45,22 @@ public class FileUtil {
         return IMAGE_PATH + "/" + name;
     }
 
-    public static String getStringFilePath(int id, String base){
+    public static String getHTMLPath(String base, String content){
+        return base + TEXT_PATH + "/" + content;
+    }
+
+    public static boolean isHTMLExist(String base, String content){
+        String path = getHTMLPath(base, content);
+        return new File(path).exists();
+    }
+
+    public static String newStringFilePath(int id, String base){
         String path = base + TEXT_PATH;
         String suffix = ".txt";
         String name = String.format("/%d_%s%s", id, UUID.randomUUID(), suffix);
         return path + name;
     }
-    public static String getStringFilePath(String base, String name){
+    public static String newStringFilePath(String base, String name){
         return base + TEXT_PATH + "/" + name;
     }
 

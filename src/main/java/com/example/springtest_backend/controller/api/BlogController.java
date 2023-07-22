@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.springtest_backend.utils.FileUtil.isHTMLExist;
 import static com.example.springtest_backend.utils.FileUtil.isImage;
 
 @RequestMapping("/api/blogs")
@@ -48,12 +49,13 @@ public class BlogController {
         Blog blog = blogMapper.getBlogById(id);
         if (blog != null){
             try{
-                blog.setContentRaw(FileUtil.getTextByName(
+                String contentRaw = (FileUtil.getTextByName(
                         request.getServletContext().getRealPath("/"),
                         blog.getContent()
                 ));
                 return BaseResponse.ok()
-                        .addResult("info", blog);
+                        .addResult("blogInfo", blog)
+                        .addResult("contentRaw", contentRaw);
             } catch (FileNotFoundException e){
                 return BaseResponse.fatal("Content not found");
             }
@@ -77,22 +79,34 @@ public class BlogController {
     public BaseResponse imageUpload(MultipartFile file, HttpServletRequest request) throws IOException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
-        if (claims == null){ return WRONG_TOKEN; }
+        if (claims == null) return WRONG_TOKEN;
         TokenSubject sub = Auth.getSubFromClaim(claims);
 
         // 文件检测
-        if (file == null) {return BaseResponse.fatal("No file provided"); }
+        if (file == null) return BaseResponse.fatal("No file provided");
         boolean is_img = isImage(file);
         System.out.println("is_img = " + is_img);
-        if (!is_img){ return BaseResponse.fatal("Only support image file"); }
+        if (!is_img) return BaseResponse.fatal("Only support image file");
 
         // 获取路径并保存 | 保存后返回文件名并以虚拟路径发送
-        String path = FileUtil.getImageFilePath(sub.getId(), request.getServletContext().getRealPath("/"), file.getOriginalFilename());
+        String path = FileUtil.newImageFilePath(sub.getId(), request.getServletContext().getRealPath("/"), file.getOriginalFilename());
         System.out.println("path = " + path);
         String name = FileUtil.saveFile(file, path);
-//        BaseResponse blogResponse = BaseResponse.ok();
-//        blogResponse.addResult("name", name);
-        return BaseResponse.ok().addResult("name", name);
+        return BaseResponse.ok().addResult("imageName", name);
+    }
+
+    @PostMapping("/token/htmlUpload")
+    public BaseResponse htmlUpload(MultipartFile file, HttpServletRequest request) throws IOException {
+        // 从token获取sub
+        Claims claims = Auth.getClaimFromRequest(request);
+        if (claims == null) return WRONG_TOKEN;
+        TokenSubject sub = Auth.getSubFromClaim(claims);
+
+        // 保存文件
+        String path = FileUtil.newStringFilePath(sub.getId(), request.getServletContext().getRealPath("/"));
+        String name = FileUtil.saveFile(file, path);
+
+        return BaseResponse.ok().addResult("content", name);
     }
 
     @PostMapping("/token/blogUpload")
@@ -103,17 +117,20 @@ public class BlogController {
         TokenSubject sub = Auth.getSubFromClaim(claims);
         int id = sub.getId();
 
-        // 检测内容
-        if (blog.getContentRaw() == null || blog.getContentRaw().equals("")){
-            return BaseResponse.fatal("No content provided.");
-        }
-
-        // 保存文件
-        String path = FileUtil.getStringFilePath(sub.getId(), request.getServletContext().getRealPath("/"));
-        String name = FileUtil.saveFile(blog.getContentRaw(), path);
+//        // 检测内容
+//        if (blog.getContentRaw() == null || blog.getContentRaw().equals("")){
+//            return BaseResponse.fatal("No content provided.");
+//        }
+//
+//        // 保存文件
+//        String path = FileUtil.getStringFilePath(sub.getId(), request.getServletContext().getRealPath("/"));
+//        String name = FileUtil.saveFile(blog.getContentRaw(), path);
 
         // 设置对象并insert
-        blog.setContent(name);
+//        blog.setContent(name);
+        if (!isHTMLExist(request.getServletContext().getRealPath("/"), blog.getContent()))
+            return BaseResponse.fatal("Content Not Found");
+        blog.setContent(blog.getContent());
         blog.setOwnerId(sub.getId());
         blog.setUpdateUserId(blog.getOwnerId());
         blog.setCreateTime(new Date().toString());
@@ -137,20 +154,20 @@ public class BlogController {
         TokenSubject sub = Auth.getSubFromClaim(claims);
         int id = sub.getId();
 
-        // 检测内容与权限
-        if (blog.getContentRaw() == null || blog.getContentRaw().equals("")){
-            return BaseResponse.fatal("No content provided.");
-        }
-        if (blogMapper.getUserToBlogCountByIds(blog.getId(), id).size() == 0){
-            return BaseResponse.fatal("No authorization's granted.");
-        }
-
-        // 保存文件
-        String path = FileUtil.getStringFilePath(request.getServletContext().getRealPath("/"), blogMapper.getBlogById(blog.getId()).getContent());
-        String name = FileUtil.saveFile(blog.getContentRaw(), path);
+//        // 检测内容与权限
+//        if (blog.getContentRaw() == null || blog.getContentRaw().equals("")){
+//            return BaseResponse.fatal("No content provided.");
+//        }
+//        if (blogMapper.getUserToBlogCountByIds(blog.getId(), id).size() == 0){
+//            return BaseResponse.fatal("No authorization's granted.");
+//        }
+//
+//        // 保存文件
+//        String path = FileUtil.getStringFilePath(request.getServletContext().getRealPath("/"), blogMapper.getBlogById(blog.getId()).getContent());
+//        String name = FileUtil.saveFile(blog.getContentRaw(), path);
 
         // 设置对象并update
-        blog.setContent(name);
+//        blog.setContent(name);
         blog.setUpdateUserId(sub.getId());
         if (blog.getUpdateTime() == null || blog.getUpdateTime().equals("")){
             blog.setUpdateTime(new Date().toString());
@@ -165,6 +182,11 @@ public class BlogController {
     @GetMapping("/categories")
     public BaseResponse getCategories(){
         return BaseResponse.ok().addResult("categories", blogMapper.getCategories());
+    }
+
+    @GetMapping("/tabs")
+    public BaseResponse getTabs(){
+        return BaseResponse.ok().addResult("tabs", blogMapper.getTabs());
     }
 
 

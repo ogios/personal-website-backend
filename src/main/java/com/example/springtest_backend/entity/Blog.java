@@ -18,11 +18,14 @@ public class Blog {
     private int ownerId;
     private int updateUserId;
     private int categoryId;
+    private List<String> tabs;
+
 
 
     // 为JSON保留字段
-    private String contentRaw;
-    private List<String> tabs;
+//    private String contentRaw;
+
+
 
     public List<String> getTabs() {
         return tabs;
@@ -64,13 +67,13 @@ public class Blog {
         this.content = content;
     }
 
-    public String getContentRaw() {
-        return contentRaw;
-    }
-
-    public void setContentRaw(String contentRaw) {
-        this.contentRaw = contentRaw;
-    }
+//    public String getContentRaw() {
+//        return contentRaw;
+//    }
+//
+//    public void setContentRaw(String contentRaw) {
+//        this.contentRaw = contentRaw;
+//    }
 
     public String getSummary() {
         return summary;
@@ -151,7 +154,7 @@ public class Blog {
                 ", ownerId=" + ownerId +
                 ", updateUserId=" + updateUserId +
                 ", categoryId=" + categoryId +
-                ", contentRaw='" + contentRaw + '\'' +
+//                ", contentRaw='" + contentRaw + '\'' +
                 ", tabs=" + tabs +
                 '}';
     }
