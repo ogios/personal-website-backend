@@ -22,6 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
 //        config.addAllowedOrigin("*");
         config.addAllowedOriginPattern("*ogios.github.io*");
         config.addAllowedOriginPattern("*127.0.0.1*");
+        config.addAllowedOriginPattern("*localhost*");
         config.setAllowCredentials(true);
         config.addAllowedMethod("*");
         config.addAllowedHeader("*");

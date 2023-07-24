@@ -33,15 +33,17 @@ public class BlogController {
     BlogMapper blogMapper;
 
     @GetMapping("/")
-    public BaseResponse getBlogsSlice(@RequestParam int size, @RequestParam int index){
+    public BaseResponse getBlogsSlice(@RequestParam int size, @RequestParam int pageIndex){
         System.out.println("size = " + size);
-        System.out.println("index = " + index);
-        List<Blog> blogs = blogMapper.getBlogByPage(size * index, size);
+        System.out.println("pageIndex = " + pageIndex);
+        List<Blog> blogs = blogMapper.getBlogByPage(size * pageIndex, size);
         int total = blogMapper.getCounts();
         System.out.println("blogs = " + blogs);
         return BaseResponse.ok()
                 .addResult("blogs", blogs)
-                .addResult("total", total);
+                .addResult("total", total)
+                .addResult("pageIndex", pageIndex)
+                .addResult("size", size);
     }
 
     @GetMapping("/blog/{id}")
