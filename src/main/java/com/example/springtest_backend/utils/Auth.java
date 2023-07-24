@@ -60,7 +60,7 @@ public class Auth {
 
 
 
-    public static String tokenGen(int id, boolean is_admin){
+    public static String tokenGen(int id, int is_admin){
         Map<String, Object> payload = new HashMap<>();
         payload.put("id", id);
         payload.put("is_admin", is_admin);

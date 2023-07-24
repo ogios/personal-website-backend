@@ -7,7 +7,8 @@ public class User {
 
     private String password;
 
-    private boolean isAdmin;
+//    @JsonProperty(value = "is_admin")
+    private int isAdmin;
 
     public int getId() {
         return id;
@@ -33,12 +34,12 @@ public class User {
         this.password = password;
     }
 
-    public boolean isAdmin() {
+    public int getIsAdmin() {
         return isAdmin;
     }
 
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
+    public void setIsAdmin(int isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
     @Override

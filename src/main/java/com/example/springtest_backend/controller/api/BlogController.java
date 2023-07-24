@@ -9,16 +9,16 @@ import com.example.springtest_backend.utils.Auth;
 import com.example.springtest_backend.utils.FileUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.tomcat.util.json.JSONParser;
+import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static com.example.springtest_backend.utils.FileUtil.isHTMLExist;
 import static com.example.springtest_backend.utils.FileUtil.isImage;
@@ -110,7 +110,7 @@ public class BlogController {
     }
 
     @PostMapping("/token/blogUpload")
-    public BaseResponse blogUpload(@RequestBody Blog blog, HttpServletRequest request) throws IOException {
+    public BaseResponse blogUpload(@RequestBody Blog blog, HttpServletRequest request) throws IOException, ParseException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
         if (claims ==null){ return WRONG_TOKEN; }
@@ -130,13 +130,17 @@ public class BlogController {
 //        blog.setContent(name);
         if (!isHTMLExist(request.getServletContext().getRealPath("/"), blog.getContent()))
             return BaseResponse.fatal("Content Not Found");
-        blog.setContent(blog.getContent());
+//        blog.setContent(blog.getContent());
         blog.setOwnerId(sub.getId());
         blog.setUpdateUserId(blog.getOwnerId());
-        blog.setCreateTime(new Date().toString());
+        blog.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
         blog.setUpdateTime(blog.getCreateTime());
         System.out.println("blog.toString() = " + blog);
         if (blogMapper.insertOneBlog(blog) > 0){
+            int blogId = blog.getId();
+            System.out.println("blog.getTabs() = " + blog.getTabs());
+            ArrayList<Object> tabs = new JSONParser(blog.getTabs()).list();
+            blogMapper.insertTabsByBlogId(blogId, tabs);
             if (blogMapper.getUserToBlogCountByIds(blog.getId(), blog.getOwnerId()).size() == 0){
                 blogMapper.addUserToBlog(blog.getId(), blog.getOwnerId());
             }

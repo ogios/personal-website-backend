@@ -6,8 +6,10 @@ import com.example.springtest_backend.mapper.UserMapper;
 import com.example.springtest_backend.response.base.BaseResponse;
 import com.example.springtest_backend.utils.Auth;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,9 @@ public class LoginController {
     @Autowired
     UserMapper userMapper;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     // 登录
     @PostMapping("/login")
     public BaseResponse login(@RequestBody User user){
@@ -30,7 +35,7 @@ public class LoginController {
         if (user != null) {
             if (user.getPassword().equals(password)){
                 user = userMapper.getUserByUsername(user.getUsername());
-                return BaseResponse.ok().addResult("token", Auth.tokenGen(user.getId(), user.isAdmin()));
+                return BaseResponse.ok().addResult("token", Auth.tokenGen(user.getId(), user.getIsAdmin()));
             }
         }
         return BaseResponse.fatal("Wrong username or password");
@@ -43,7 +48,7 @@ public class LoginController {
         System.out.println("user = " + user);
         if (userMapper.addUser(user) == 1){
             user = userMapper.getUserByUsername(user.getUsername());
-            return BaseResponse.ok().addResult("token", Auth.tokenGen(user.getId(), user.isAdmin()));
+            return BaseResponse.ok().addResult("token", Auth.tokenGen(user.getId(), user.getIsAdmin()));
         } else {
             return BaseResponse.error("Something went wrong");
         }
@@ -93,16 +98,34 @@ public class LoginController {
 
     // 检测token
     @GetMapping("/token/checkToken")
-    public BaseResponse checkToken(HttpServletRequest request){
-//        String token = request.getHeader("token");
-//        Claims claims = Auth.tokenParse(token);
-//        String sub = claims.getSubject();
-//        System.out.println("sub = " + sub);
-//        Object subO = JSONUtils.parse(sub);
-//        System.out.println("subO = " + subO);
-//        return SignResponse.ok(token);
+    public BaseResponse checkToken(HttpServletRequest request) {
+        Claims claims = Auth.getClaimFromRequest(request);
+        if (claims == null){ return WRONG_TOKEN; }
+//        TokenSubject sub = Auth.getSubFromClaim(claims);
+//        int id = sub.getId();
+//        return BaseResponse.ok().addResult("id", id);
         return BaseResponse.ok();
     }
+
+    @GetMapping("/token/userinfo")
+    public BaseResponse getUserInfo(HttpServletRequest request) throws JsonProcessingException, ParseException {
+        Claims claims = Auth.getClaimFromRequest(request);
+        if (claims == null){ return WRONG_TOKEN; }
+        TokenSubject sub = Auth.getSubFromClaim(claims);
+        int id = sub.getId();
+//        ArrayList<Object> tabs = new JSONParser("[\"test4\", \"test2\", \"test1\"]").list();
+//        System.out.println("tabs = " + tabs);
+        User user = userMapper.getUserById(id);
+        if (user != null){
+            user.setPassword(null);
+            String test = objectMapper.writeValueAsString(user);
+            System.out.println("test = " + test);
+            return BaseResponse.ok().addResult("userinfo", user);
+        } else {
+            return BaseResponse.fatal("user not exist");
+        }
+    }
+
 
 
 }

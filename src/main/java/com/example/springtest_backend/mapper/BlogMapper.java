@@ -4,6 +4,7 @@ import com.example.springtest_backend.entity.Blog;
 import com.example.springtest_backend.entity.Category;
 import org.apache.ibatis.annotations.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public interface BlogMapper {
             "FROM t_blog b " +
             "LEFT JOIN t_tab t ON b.id = t.blog_id " +
             "GROUP BY b.id " +
-            "LIMIT LIMIT #{offset},#{size}")
+            "LIMIT  #{offset},#{size}" )
     List<Blog> getBlogByPage(int offset, int size);
 
     // 获取文章总数
@@ -42,10 +43,19 @@ public interface BlogMapper {
     // 插入新的blog| 标题-封面图文件名-文章文件名-摘要-是否完成-创建时间-更新时间-创建者-更新用户-分类
     @ResultMap("BaseResultMap")
     @Insert("INSERT INTO t_blog " +
-            "(title, head_img, content, summary, is_finished, create_time, update_time, owner_id, update_user_id, category_id) " +
-            "VALUES(#{title},#{headImg},#{content},#{summary},#{isFinished},#{createTime},#{updateTime},#{ownerId},#{updateUserId},#{categoryId})")
+            "(title, head_img, content, summary, is_finished, is_top, create_time, update_time, owner_id, update_user_id, category_id) " +
+            "VALUES(#{title},#{headImg},#{content},#{summary},#{isFinished},#{isTop},#{createTime},#{updateTime},#{ownerId},#{updateUserId},#{categoryId})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertOneBlog(Blog blog);
+
+
+    @Insert(" <script> " +
+            " INSERT INTO t_tab VALUES " +
+            " <foreach collection='tabs' item='tab' separator=','> " +
+            " (#{tab},${blog_id}) " +
+            " </foreach> " +
+            " </script> ")
+    int insertTabsByBlogId(int blog_id, @Param("tabs") ArrayList<Object> tabs);
 
     // 为文章加入新的制作者
     @Insert("INSERT INTO t_user_blog VALUES(#{blog_id},#{user_id})")

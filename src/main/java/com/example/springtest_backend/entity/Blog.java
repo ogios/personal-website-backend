@@ -1,7 +1,5 @@
 package com.example.springtest_backend.entity;
 
-import java.util.List;
-
 public class Blog {
 
 
@@ -18,7 +16,8 @@ public class Blog {
     private int ownerId;
     private int updateUserId;
     private int categoryId;
-    private List<String> tabs;
+    private String tabs;
+//    private String tabs;
 
 
 
@@ -26,12 +25,11 @@ public class Blog {
 //    private String contentRaw;
 
 
-
-    public List<String> getTabs() {
+    public String getTabs() {
         return tabs;
     }
 
-    public void setTabs(List<String> tabs) {
+    public void setTabs(String tabs) {
         this.tabs = tabs;
     }
 
