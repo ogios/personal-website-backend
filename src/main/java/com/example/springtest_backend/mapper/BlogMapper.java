@@ -14,7 +14,7 @@ public interface BlogMapper {
     // select
     // 分页获取所有信息(包括tabs)
 //    @Select("SELECT * FROM t_blog LIMIT #{offset},#{size}")
-    @Select("SELECT b.*, JSON_ARRAYAGG(t.name) AS tabs " +
+    @Select("SELECT b.*,(SELECT username FROM t_user AS u WHERE u.id = b.owner_id) AS owner_name, JSON_ARRAYAGG(t.name) AS tabs " +
             "FROM t_blog b " +
             "LEFT JOIN t_tab t ON b.id = t.blog_id " +
             "GROUP BY b.id " +
@@ -55,7 +55,7 @@ public interface BlogMapper {
             " (#{tab},${blog_id}) " +
             " </foreach> " +
             " </script> ")
-    int insertTabsByBlogId(int blog_id, @Param("tabs") ArrayList<Object> tabs);
+    int insertTabsByBlogId(int blog_id, @Param("tabs") ArrayList<String> tabs);
 
     // 为文章加入新的制作者
     @Insert("INSERT INTO t_user_blog VALUES(#{blog_id},#{user_id})")

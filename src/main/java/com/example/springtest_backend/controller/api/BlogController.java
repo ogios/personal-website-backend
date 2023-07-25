@@ -9,7 +9,6 @@ import com.example.springtest_backend.utils.Auth;
 import com.example.springtest_backend.utils.FileUtil;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +38,7 @@ public class BlogController {
         List<Blog> blogs = blogMapper.getBlogByPage(size * pageIndex, size);
         int total = blogMapper.getCounts();
         System.out.println("blogs = " + blogs);
+
         return BaseResponse.ok()
                 .addResult("blogs", blogs)
                 .addResult("total", total)
@@ -141,8 +141,10 @@ public class BlogController {
         if (blogMapper.insertOneBlog(blog) > 0){
             int blogId = blog.getId();
             System.out.println("blog.getTabs() = " + blog.getTabs());
-            ArrayList<Object> tabs = new JSONParser(blog.getTabs()).list();
-            blogMapper.insertTabsByBlogId(blogId, tabs);
+//            blog.setTabs(Common.JSONToList((String) blog.getTabs()));
+            blogMapper.insertTabsByBlogId(blogId, (ArrayList<String>) blog.getTabs());
+//            ArrayList<Object> tabs = new JSONParser(blog.getTabs()).list();
+//            blogMapper.insertTabsByBlogId(blogId, tabs);
             if (blogMapper.getUserToBlogCountByIds(blog.getId(), blog.getOwnerId()).size() == 0){
                 blogMapper.addUserToBlog(blog.getId(), blog.getOwnerId());
             }

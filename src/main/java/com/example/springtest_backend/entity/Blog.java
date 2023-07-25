@@ -16,20 +16,27 @@ public class Blog {
     private int ownerId;
     private int updateUserId;
     private int categoryId;
-    private String tabs;
 //    private String tabs;
-
-
+    private Object tabs;
+    private String ownerName;
 
     // 为JSON保留字段
-//    private String contentRaw;
+//    private String
 
 
-    public String getTabs() {
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
+    }
+
+    public Object getTabs() {
         return tabs;
     }
 
-    public void setTabs(String tabs) {
+    public void setTabs(Object tabs) {
         this.tabs = tabs;
     }
 
