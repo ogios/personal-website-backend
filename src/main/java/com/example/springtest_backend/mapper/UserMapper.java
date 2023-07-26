@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
 
@@ -13,6 +15,9 @@ public interface UserMapper {
     // 用户名获取用户信息
     @Select("SELECT * FROM t_user WHERE username=#{username}")
     User getUserByUsername(String username);
+
+    @Select("SELECT * FROM t_user WHERE username=#{username} AND password=MD5(#{password})")
+    List<User> getUserByUsernameAndPassword(String username, String password);
 
     // id获取用户信息
     @Select("SELECT * FROM t_user WHERE id=#{id}")
@@ -22,6 +27,9 @@ public interface UserMapper {
     @Select("SELECT count(id) FROM t_user WHERE username=#{username}")
     int getCountsByUsername(String username);
 
+    @Select("SELECT count(id) FROM t_user WHERE id=#{id}")
+    int getCountsById(int id);
+
     // 获取全部用户数量
     @Select("SELECT count(id) FROM t_user")
     int getCounts();
@@ -29,7 +37,7 @@ public interface UserMapper {
 
     // insert
     // 添加新用户| 用户名-密码
-    @Insert("INSERT INTO t_user (username, password) VALUES(#{username},#{password})")
+    @Insert("INSERT INTO t_user (username, password) VALUES(#{username},MD5(#{password}))")
     int addUser(User user);
 
 

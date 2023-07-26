@@ -3,6 +3,11 @@ package com.example.springtest_backend;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 @SpringBootTest
 class SpringtestBackendApplicationTests {
 
@@ -12,9 +17,9 @@ class SpringtestBackendApplicationTests {
     }
 
     public static void main(String[] args) {
-        String c = "dsass.fsaf.jpg";
-        String a = c.substring(c.lastIndexOf(".") + 1);
+        String a = new SimpleDateFormat("xyyyy-MM-dd HH:mm:ss").format(new Date());
+        String b = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now());
         System.out.println("a = " + a);
+        System.out.println("b = " + b);
     }
-
 }
