@@ -2,7 +2,6 @@ package com.example.springtest_backend.utils;
 
 import com.alibaba.druid.support.json.JSONUtils;
 import com.example.springtest_backend.entity.TokenSubject;
-import com.example.springtest_backend.entity.User;
 import com.example.springtest_backend.mapper.UserMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,17 +47,6 @@ public class Auth {
 
     @Value("${auth.secret}")
     private String secret;
-
-    public static boolean login(User user){
-        String password = user.getPassword();
-        user = auth.userMapper.getUserByUsername(user.getUsername());
-        if (user != null){
-            return user.getPassword().equals(password);
-        }
-        return false;
-    }
-
-
 
     public static String tokenGen(int id, int is_admin){
         Map<String, Object> payload = new HashMap<>();

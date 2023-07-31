@@ -34,6 +34,9 @@ public interface UserMapper {
     @Select("SELECT count(id) FROM t_user")
     int getCounts();
 
+    @Select("SELECT * FROM t_user WHERE id=${user_id} AND is_admin=1")
+    User checkUserAdmin(int user_id);
+
 
     // insert
     // 添加新用户| 用户名-密码

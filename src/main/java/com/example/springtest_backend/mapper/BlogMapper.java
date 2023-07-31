@@ -38,6 +38,14 @@ public interface BlogMapper {
             "WHERE blog_id=#{blog_id} AND user_id=#{user_id}")
     List<Blog> getUserToBlogCountByIds(int blog_id, int user_id);
 
+    @Select(" <script> " +
+            "SELECT * FROM `t_blog` AS b " +
+            "<if test=\"#{conditions.tab} != null\"> INNER JOIN `t_tab` AS t ON b.id=t.blog_id </if> " +
+            "WHERE 1=1 " +
+            "<if test=\"#{conditions.category} != null\"> AND b.category_id=#{conditions.category} </if> " +
+            "<if test=\"#{conditions.tab} != null\"> AND t.name=#{conditions.tab} </if> " +
+            " </script> ")
+    List<Category> getBlogsByConditions(@Param("condition") Map<String, Object> conditions);
 
     // insert
     // 插入新的blog| 标题-封面图文件名-文章文件名-摘要-是否完成-创建时间-更新时间-创建者-更新用户-分类
@@ -63,25 +71,27 @@ public interface BlogMapper {
 
 
     // update
-    // 更新文章| 标题-摘要-封面图文件名-更新时间-更新用户-是否完成-分类
+    // 更新文章| 标题-摘要-封面图文件名-更新时间-更新用户-是否完成-是否置顶-分类
     @Update("UPDATE t_blog " +
-            "SET title=#{title},summary=#{summary},head_img=#{headImg},update_time=#{updateTime},update_user_id=#{updateUserId},is_finished=#{isFinished},category_id=#{categoryId} " +
+            "SET title=#{title},summary=#{summary},head_img=#{headImg},update_time=#{updateTime},update_user_id=#{updateUserId},is_finished=#{isFinished},is_top=#{isTop},category_id=#{categoryId} " +
             "WHERE id=#{id}")
     int updateBlogById(Blog blog);
+
+    // delete
+    @Delete("DELETE FROM t_blog WHERE id=#{blog_id}")
+    int deleteBlogById(int blog_id);
+
 
     @Select("SELECT * FROM t_category")
     List<Category> getCategories();
 
-    @Select(" <script> " +
-            "SELECT * FROM `t_blog` AS b " +
-            "<if test=\"#{conditions.tab} != null\"> INNER JOIN `t_tab` AS t ON b.id=t.blog_id </if> " +
-            "WHERE 1=1 " +
-            "<if test=\"#{conditions.category} != null\"> AND b.category_id=#{conditions.category} </if> " +
-            "<if test=\"#{conditions.tab} != null\"> AND t.name=#{conditions.tab} </if> " +
-            " </script> ")
-    List<Category> getBlogsByConditions(@Param("condition")Map<String, Object> conditions);
-
     @Select("SELECT DISTINCT name FROM t_tab")
     List<String> getTabs();
+
+    @Select("SELECT name FROM t_tab WHERE blog_id=#{blog_id}")
+    List<String> getTabsById(int blog_id);
+
+    @Delete("DELETE FROM t_tab WHERE blog_id=#{blog_id}")
+    int truncateTabsById(int blog_id);
 
 }

@@ -7,7 +7,7 @@ MAINTAINER ogios:2134692955@qq.com
 ENV MYSQL_ROOT_PASSWORD=123456
 
 # 初始化自动创建库和表
-ADD init.sql /docker-entrypoint-initdb.d/
+ADD git_backend.sql /docker-entrypoint-initdb.d/
 
 # 持久化数据
 VOLUME /var/lib/mysql

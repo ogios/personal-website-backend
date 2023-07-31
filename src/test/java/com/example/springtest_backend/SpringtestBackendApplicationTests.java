@@ -3,10 +3,8 @@ package com.example.springtest_backend;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootTest
 class SpringtestBackendApplicationTests {
@@ -17,9 +15,8 @@ class SpringtestBackendApplicationTests {
     }
 
     public static void main(String[] args) {
-        String a = new SimpleDateFormat("xyyyy-MM-dd HH:mm:ss").format(new Date());
-        String b = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss").format(LocalDateTime.now());
-        System.out.println("a = " + a);
-        System.out.println("b = " + b);
+        List<String> a = new ArrayList<>();
+        for (int i=0; i < 10; i++) a.add("c" + i);
+        System.out.println("a.contains(\"c2\") = " + a.contains("c2"));
     }
 }

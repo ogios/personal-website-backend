@@ -18,6 +18,7 @@ public class FileUtil {
     public static String IMAGE_PATH =  "/raw/images";
     public static String TEXT_PATH = "/raw/text";
 
+    // 图片 ========================================================
     public static Set<String> IMAGE_TYPE = new HashSet<>();
     static {
         IMAGE_TYPE.addAll(List.of("jpg", "png", "gif", "webp", "tiff", "bmp", "ico", "apng", "tif", "avif"));
@@ -41,10 +42,17 @@ public class FileUtil {
         return path + name;
     }
 
+    public static String getImageFilePath(String base, String name){
+        return base + IMAGE_PATH + "/" + name;
+    }
+
     public static String getImageRelativePath(String name){
         return IMAGE_PATH + "/" + name;
     }
 
+
+
+    // 文字 ====================================================
     public static String getHTMLPath(String base, String content){
         return base + TEXT_PATH + "/" + content;
     }
@@ -60,7 +68,7 @@ public class FileUtil {
         String name = String.format("/%d_%s%s", id, UUID.randomUUID(), suffix);
         return path + name;
     }
-    public static String newStringFilePath(String base, String name){
+    public static String getStringFilePath(String base, String name){
         return base + TEXT_PATH + "/" + name;
     }
 
@@ -108,8 +116,23 @@ public class FileUtil {
             System.out.println("Creating dir: " + path);
             Files.createDirectories(paths);
         }
-
     }
+
+    public static boolean deleteText(String base, String content) {
+        String path = base + TEXT_PATH + "/" + content;
+        File file = new File(path);
+        if (file.exists()) return file.delete();
+        else return false;
+    }
+
+    public static boolean deleteImage(String base, String headImg) {
+        String path = base + IMAGE_PATH + "/" + headImg;
+        File file = new File(path);
+        if (file.exists()) return file.delete();
+        else return false;
+    }
+
+
 
     public static String getTextByName(String base, String name) throws IOException {
         String path = base + TEXT_PATH + "/" + name;
