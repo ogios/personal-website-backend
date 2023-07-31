@@ -20,7 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
 //        config.addAllowedOrigin("*");
-        config.addAllowedOriginPattern("*ogios.github.io*");
+//        config.addAllowedOriginPattern("*ogios.github.io*");
+        config.addAllowedOriginPattern("*ogios*");
         config.addAllowedOriginPattern("*127.0.0.1*");
         config.addAllowedOriginPattern("*localhost*");
         config.setAllowCredentials(true);
