@@ -9,18 +9,22 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://mysql:3306/git_backend?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://:3306/git_backend?useUnicode=true&characterEncoding=utf-8&rewriteBatchedStatements=true
     username:
     password:
     type: com.alibaba.druid.pool.DruidDataSource
   servlet:
     multipart:
       max-file-size: 10MB
+  mvc:
+    static-path-pattern: /**
   web:
     resources:
-      static-locations: /raw/
-  mvc:
-    static-path-pattern: /raw/
+      static-locations: classpath:/static,classpath:/public,classpath:/resources,classpath:/META-INF/resources,file:raw
+      chain:
+        compressed: true
+
+
 
 mybatis-plus:
   configuration:
@@ -33,4 +37,4 @@ mybatis:
 
 auth:
   secret:
-  expire-days: 2
+  expire-days:
