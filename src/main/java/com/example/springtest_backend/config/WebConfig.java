@@ -37,7 +37,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry
-                .addResourceHandler("**/raw/text**")
+                .addResourceHandler("*/raw/text/*")
                 .addResourceLocations("file:raw")
                 .setCacheControl(CacheControl.noCache());
     }

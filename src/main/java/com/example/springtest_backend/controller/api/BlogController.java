@@ -93,7 +93,7 @@ public class BlogController {
         return BaseResponse.ok().addResult("imageName", name);
     }
 
-    @PutMapping("/token/imageUpload")
+/*    @PutMapping("/token/imageUpload")
     public BaseResponse imageUpdate(@RequestParam int blog_id, MultipartFile file, HttpServletRequest request) throws IOException {
         // 从token获取sub
         Claims claims = Auth.getClaimFromRequest(request);
@@ -117,7 +117,7 @@ public class BlogController {
         } else {
             return BaseResponse.fatal("文章不存在或无权限");
         }
-    }
+    }*/
 
     @PostMapping("/token/htmlUpload")
     public BaseResponse htmlUpload(MultipartFile file, HttpServletRequest request) throws IOException {
@@ -170,8 +170,11 @@ public class BlogController {
         System.out.println("blog.toString() = " + blog);
         if (blogMapper.insertOneBlog(blog) > 0){
             int blogId = blog.getId();
-            System.out.println("blog.getTabs() = " + blog.getTabs());
-            blogMapper.insertTabsByBlogId(blogId, (ArrayList<String>) blog.getTabs());
+            ArrayList<String> tabs = (ArrayList<String>) blog.getTabs();
+            if (tabs.size() > 0){
+                System.out.println("blog.getTabs() = " + blog.getTabs());
+                blogMapper.insertTabsByBlogId(blogId, tabs);
+            }
             if (blogMapper.getUserToBlogCountByIds(blog.getId(), blog.getOwnerId()).size() == 0){
                 blogMapper.addUserToBlog(blog.getId(), blog.getOwnerId());
             }
