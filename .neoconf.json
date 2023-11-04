@@ -1,0 +1,6 @@
+{
+  "runner": {
+    "command": "go run .",
+    "name": "pwb"
+  }
+}
